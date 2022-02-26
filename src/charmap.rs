@@ -2,8 +2,28 @@ use lazy_static::lazy_static;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::collections::HashMap;
 
+type CharMap = HashMap<&'static str, &'static str>;
+
+trait FindMatch {
+    fn find_match(&self, character: &str, get_key: bool) -> Option<String>;
+}
+
+impl FindMatch for CharMap {
+    fn find_match(&self, character: &str, get_key: bool) -> Option<String> {
+        self.par_iter().find_map_first(|(&key, &val)| {
+            if get_key && val == character {
+                Some(key.to_string())
+            } else if !get_key && key == character {
+                Some(val.to_string())
+            } else {
+                Some("".to_string())
+            }
+        })
+    }
+}
+
 lazy_static! {
-    static ref CHAR_SWARA: HashMap<&'static str, &'static str> = HashMap::from([
+    static ref CHAR_SWARA: CharMap = HashMap::from([
         ("a", "ᮃ"),
         ("i", "ᮄ"),
         ("u", "ᮅ"),
@@ -12,7 +32,7 @@ lazy_static! {
         ("eu", "ᮉ"),
         ("o", "ᮇ"),
     ]);
-    static ref CHAR_NGALAGENA: HashMap<&'static str, &'static str> = HashMap::from([
+    static ref CHAR_NGALAGENA: CharMap = HashMap::from([
         ("k", "ᮊ"),
         ("g", "ᮌ"),
         ("ng", "ᮍ"),
@@ -39,7 +59,7 @@ lazy_static! {
         ("kh", "ᮮ"),
         ("sy", "ᮯ"),
     ]);
-    static ref CHAR_RARANGKEN: HashMap<&'static str, &'static str> = HashMap::from([
+    static ref CHAR_RARANGKEN: CharMap = HashMap::from([
         ("a", ""),
         ("i", "ᮤ"),
         ("u", "ᮥ"),
@@ -52,9 +72,9 @@ lazy_static! {
         ("h", "ᮂ"),
         ("pamaeh", "᮪"),
     ]);
-    static ref CHAR_RARANGKEN_SONORANT: HashMap<&'static str, &'static str> =
+    static ref CHAR_RARANGKEN_SONORANT: CharMap =
         HashMap::from([("l", "ᮣ"), ("r", "ᮢ"), ("y", "ᮡ"),]);
-    static ref CHAR_ANGKA: HashMap<&'static str, &'static str> = HashMap::from([
+    static ref CHAR_ANGKA: CharMap = HashMap::from([
         ("0", "᮰"),
         ("1", "᮱"),
         ("2", "᮲"),
@@ -68,74 +88,29 @@ lazy_static! {
     ]);
 }
 
+/// Get the corresponding Swara character from a given Latin/Sundanese input
 pub fn get_swara(character: &str, get_latin: bool) -> String {
-    let result = CHAR_SWARA.par_iter().find_map_first(|(&key, &val)| {
-        if get_latin && val == character {
-            Some(key.to_string())
-        } else if !get_latin && key == character {
-            Some(val.to_string())
-        } else {
-            None
-        }
-    });
-
-    result.unwrap_or_else(|| "".to_string())
+    CHAR_SWARA.find_match(character, get_latin).unwrap()
 }
 
+/// Get the corresponding Ngalagena character from a given Latin/Sundanese input.
 pub fn get_ngalagena(character: &str, get_latin: bool) -> String {
-    let result = CHAR_NGALAGENA.par_iter().find_map_first(|(&key, &val)| {
-        if get_latin && val == character {
-            Some(key.to_string())
-        } else if !get_latin && key == character {
-            Some(val.to_string())
-        } else {
-            None
-        }
-    });
-
-    result.unwrap_or_else(|| "".to_string())
+    CHAR_NGALAGENA.find_match(character, get_latin).unwrap()
 }
 
+/// Get the corresponding Rarangken character from a given Latin/Sundanese input.
 pub fn get_rarangken(character: &str, get_latin: bool) -> String {
-    let result = CHAR_RARANGKEN.par_iter().find_map_first(|(&key, &val)| {
-        if get_latin && val == character {
-            Some(key.to_string())
-        } else if !get_latin && key == character {
-            Some(val.to_string())
-        } else {
-            None
-        }
-    });
-
-    result.unwrap_or_else(|| "".to_string())
+    CHAR_RARANGKEN.find_match(character, get_latin).unwrap()
 }
 
+/// Get the corresponding Rarangken sonorant character from a given Latin/Sundanese input.
 pub fn get_rarangken_sonorant(character: &str, get_latin: bool) -> String {
-    let result = CHAR_RARANGKEN_SONORANT
-        .par_iter()
-        .find_map_first(|(&key, &val)| {
-            if get_latin && val == character {
-                Some(key.to_string())
-            } else if !get_latin && key == character {
-                Some(val.to_string())
-            } else {
-                None
-            }
-        });
-
-    result.unwrap_or_else(|| "".to_string())
+    CHAR_RARANGKEN_SONORANT
+        .find_match(character, get_latin)
+        .unwrap()
 }
 
+/// Get the corresponding Angka character from a given Latin/Sundanese input.
 pub fn get_angka(character: &str, get_latin: bool) -> String {
-    let result = CHAR_ANGKA.par_iter().find_map_first(|(&key, &val)| {
-        if get_latin && val == character {
-            Some(key.to_string())
-        } else if !get_latin && key == character {
-            Some(val.to_string())
-        } else {
-            None
-        }
-    });
-
-    result.unwrap_or_else(|| "".to_string())
+    CHAR_ANGKA.find_match(character, get_latin).unwrap()
 }

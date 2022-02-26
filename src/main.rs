@@ -1,17 +1,22 @@
+mod capturer;
+mod charmap;
+mod transliterator;
+
 use clap::{Arg, Command};
 use rayon::prelude::*;
 use std::env;
 use std::time::Instant;
 
-mod capturer;
-mod charmap;
-mod transliterator;
+use crate::{
+    capturer::{capture_latin, capture_sunda},
+    transliterator::to_sundanese,
+};
 
 fn main() {
     // Benchmark start
     let now = Instant::now();
 
-    let arguments = Command::new("sunda")
+    let args = Command::new("sunda")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Nourman Hajar <nourmanhajar@gmail.com>")
         .about(
@@ -40,29 +45,27 @@ fn main() {
         )
         .get_matches();
 
-    let is_into_sunda = arguments.is_present("sunda");
-    let input = match arguments.values_of("input") {
+    let into_sunda = args.is_present("sunda");
+    let input = match args.values_of("input") {
         Some(input) => input.collect::<Vec<&str>>().join(" ").to_lowercase(),
         None => String::new(),
     };
 
-    let (groups, matches) = match is_into_sunda {
-        true => capturer::capture_latin(&input),
-        false => capturer::capture_sunda(&input),
-    };
-
-    let output: String = match is_into_sunda {
-        true => matches
+    let output: String = if into_sunda {
+        let (groups, matches) = capture_latin(&input);
+        matches
             .par_iter()
-            .map(|capture| transliterator::to_sundanese(&groups, capture))
+            .map(|capture| to_sundanese(&groups, capture))
             .collect::<Vec<String>>()
-            .join(""),
-        false => matches
+            .join("")
+    } else {
+        let (groups, matches) = capture_sunda(&input);
+        matches
             .par_iter()
             //TODO: change this
-            .map(|capture| transliterator::to_sundanese(&groups, capture))
+            .map(|capture| to_sundanese(&groups, capture))
             .collect::<Vec<String>>()
-            .join(""),
+            .join("")
     };
 
     println!("{}", output);

@@ -11,6 +11,7 @@ lazy_static! {
         .unwrap();
 }
 
+/// Captures regex groups from the given Latin input.
 pub fn capture_latin(text: &str) -> (Vec<String>, Vec<Captures>) {
     return (
         CAPTURE_LATIN
@@ -24,6 +25,7 @@ pub fn capture_latin(text: &str) -> (Vec<String>, Vec<Captures>) {
     );
 }
 
+/// Captures regex groups from the given Sundanese input.
 pub fn capture_sunda(text: &str) -> (Vec<String>, Vec<Captures>) {
     return (
         CAPTURE_SUNDA

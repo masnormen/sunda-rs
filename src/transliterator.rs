@@ -1,8 +1,9 @@
-use crate::charmap;
-use std::collections::HashMap;
+use crate::charmap::{get_angka, get_ngalagena, get_rarangken, get_rarangken_sonorant, get_swara};
 use fancy_regex::Captures;
 use rayon::iter::{ParallelBridge, ParallelIterator};
+use std::collections::HashMap;
 
+/// Takes `Captures` from Latin and returns the transliterated Sundanese `String`.
 pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
     let get_latin = false;
 
@@ -23,8 +24,11 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
 
     // Transliterate digits
     if !matches["digits"].is_empty() {
-        println!("{:?}", matches["digits"]);
-        let numbers = charmap::get_angka(matches["digits"].as_str(), get_latin);
+        let numbers = matches["digits"]
+            .chars()
+            .map(|digit| get_angka(digit.encode_utf8(&mut [0; 4]), get_latin))
+            .collect::<Vec<String>>()
+            .join("");
         return format!("|{}|", numbers);
     }
 
@@ -35,43 +39,35 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
 
     // Transliterate standalone consonant
     if !matches["consonant_standalone"].is_empty() {
-        let consonant = charmap::get_ngalagena(matches["consonant_standalone"].as_str(), get_latin);
-        let pamaeh = charmap::get_rarangken("pamaeh", get_latin);
+        let consonant = get_ngalagena(matches["consonant_standalone"].as_str(), get_latin);
+        let pamaeh = get_rarangken("pamaeh", get_latin);
         return format!("{consonant}{pamaeh}");
     }
 
+    // Transliterate anything else
     let mut output = String::new();
 
     if !matches["consonant_main"].is_empty() {
-        output.push_str(&charmap::get_ngalagena(
-            &matches["consonant_main"],
-            get_latin,
-        ));
-
+        output.push_str(&get_ngalagena(&matches["consonant_main"], get_latin));
         if !matches["consonant_sonorant"].is_empty() {
-            output.push_str(&charmap::get_rarangken_sonorant(
+            output.push_str(&get_rarangken_sonorant(
                 &matches["consonant_sonorant"],
                 get_latin,
             ));
         }
-
-        output.push_str(&charmap::get_rarangken(&matches["vowel"], get_latin));
+        output.push_str(&get_rarangken(&matches["vowel"], get_latin));
     } else {
-        output.push_str(&charmap::get_swara(&matches["vowel"], get_latin));
+        output.push_str(&get_swara(&matches["vowel"], get_latin));
     }
 
     if !matches["consonant_rarangken"].is_empty() {
-        output.push_str(&charmap::get_rarangken(
-            &matches["consonant_rarangken"],
-            get_latin,
-        ));
+        output.push_str(&get_rarangken(&matches["consonant_rarangken"], get_latin));
     }
 
     if !matches["consonant_final"].is_empty() {
-        let consonant = charmap::get_angka(&matches["consonant_final"], get_latin);
-        let pamaeh = charmap::get_rarangken("pamaeh", get_latin);
-        output.push_str(format!("{consonant}{pamaeh}").as_str());
+        output.push_str(&get_angka(&matches["consonant_final"], get_latin));
+        output.push_str(&get_rarangken("pamaeh", get_latin));
     }
 
-    output.to_string()
+    output
 }

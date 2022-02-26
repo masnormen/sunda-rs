@@ -1,77 +1,72 @@
-mod charmap;
+use clap::{Arg, Command};
+use rayon::prelude::*;
+use std::env;
+use std::time::Instant;
+
 mod capturer;
+mod charmap;
 mod transliterator;
 
-use core::env;
-
 fn main() {
-    let mut get_latin: bool = false;
-    let mut input = String::new();
+    // Benchmark start
+    let now = Instant::now();
 
-    let arguments: Vec<String> = env::args().collect();
+    let arguments = Command::new("sunda")
+        .version(env!("CARGO_PKG_VERSION"))
+        .author("Nourman Hajar <nourmanhajar@gmail.com>")
+        .about(
+            "Convert/transliterate Latin into Sundanese script (Aksara Sunda Baku), or vice versa",
+        )
+        .arg(
+            Arg::new("sunda")
+                .short('s')
+                .long("sunda")
+                .required_unless_present("latin")
+                .overrides_with("latin")
+                .help("Turns on transliteration into Sundanese script"),
+        )
+        .arg(
+            Arg::new("latin")
+                .short('l')
+                .long("latin")
+                .required_unless_present("sunda")
+                .overrides_with("sunda")
+                .help("Turns on transliteration into Latin script"),
+        )
+        .arg(
+            Arg::new("input")
+                .raw(true)
+                .help("Input string to be transliterated"),
+        )
+        .get_matches();
 
-    // Check length of arguments
-    if arguments.len() <= 1 {
-        print_help(1);
-    }
+    let is_into_sunda = arguments.is_present("sunda");
+    let input = match arguments.values_of("input") {
+        Some(input) => input.collect::<Vec<&str>>().join(" ").to_lowercase(),
+        None => String::new(),
+    };
 
-    // Set transliteration option
-    match arguments[1].as_str() {
-        "--latin" | "-l" => {
-            get_latin = true;
-        }
-        "--sunda" | "-s" => {
-            get_latin = false;
-        }
-        "--help" | "-h" => {
-            print_help(0);
-        }
-        _ => {
-            println!("Unrecognized command. Please refer to usage below.");
-            print_help(1);
-        }
-    }
+    let (groups, matches) = match is_into_sunda {
+        true => capturer::capture_latin(&input),
+        false => capturer::capture_sunda(&input),
+    };
 
-    // Process the rest of arguments as one input string
-    input = arguments[2..].join(" ");
-    input = input.trim().to_lowercase();
-
-    let matches = capturer::capture_latin(&input);
-
-    let mut output = String::new();
-
-    for syllable in matches {
-        let out = transliterator::to_sundanese(&syllable);
-        output.push_str(out.as_str());
-    }
+    let output: String = match is_into_sunda {
+        true => matches
+            .par_iter()
+            .map(|capture| transliterator::to_sundanese(&groups, capture))
+            .collect::<Vec<String>>()
+            .join(""),
+        false => matches
+            .par_iter()
+            //TODO: change this
+            .map(|capture| transliterator::to_sundanese(&groups, capture))
+            .collect::<Vec<String>>()
+            .join(""),
+    };
 
     println!("{}", output);
 
-    // if to_latin {
-    //     println!("HEHE");
-    // } else {
-
-    // }
-
-    // match to_latin {
-    //     true => {
-    //         let latin_output = capturer::capture_sunda(&input);
-    //         println!("{:?}", latin_output);
-    //     }
-    //     false => {
-    //         let sunda_output = capturer::capture_latin(&input);
-    //         println!("{:?}", sunda_output);
-    //     }
-    // }
-}
-
-fn print_help(exit_code: i32) {
-    println!("Usage: trans [options] [string]");
-    println!("");
-    println!("Options:");
-    println!("  --help, -h        Print this help message");
-    println!("  --sunda, -s       Transliterate into Sundanese script");
-    println!("  --latin, -l       Transliterate into Latin script");
-
-    std::process::exit(exit_code);
+    // Benchmark end
+    println!("Elapsed: {:.2?}", now.elapsed());
 }

@@ -16,7 +16,7 @@ impl FindMatch for CharMap {
             } else if !get_key && key == character {
                 Some(val.to_string())
             } else {
-                Some("".to_string())
+                None
             }
         })
     }
@@ -90,27 +90,35 @@ lazy_static! {
 
 /// Get the corresponding Swara character from a given Latin/Sundanese input
 pub fn get_swara(character: &str, get_latin: bool) -> String {
-    CHAR_SWARA.find_match(character, get_latin).unwrap()
+    CHAR_SWARA
+        .find_match(character, get_latin)
+        .unwrap_or_else(|| "".to_string())
 }
 
 /// Get the corresponding Ngalagena character from a given Latin/Sundanese input.
 pub fn get_ngalagena(character: &str, get_latin: bool) -> String {
-    CHAR_NGALAGENA.find_match(character, get_latin).unwrap()
+    CHAR_NGALAGENA
+        .find_match(character, get_latin)
+        .unwrap_or_else(|| "".to_string())
 }
 
 /// Get the corresponding Rarangken character from a given Latin/Sundanese input.
 pub fn get_rarangken(character: &str, get_latin: bool) -> String {
-    CHAR_RARANGKEN.find_match(character, get_latin).unwrap()
+    CHAR_RARANGKEN
+        .find_match(character, get_latin)
+        .unwrap_or_else(|| "".to_string())
 }
 
 /// Get the corresponding Rarangken sonorant character from a given Latin/Sundanese input.
 pub fn get_rarangken_sonorant(character: &str, get_latin: bool) -> String {
     CHAR_RARANGKEN_SONORANT
         .find_match(character, get_latin)
-        .unwrap()
+        .unwrap_or_else(|| "".to_string())
 }
 
 /// Get the corresponding Angka character from a given Latin/Sundanese input.
 pub fn get_angka(character: &str, get_latin: bool) -> String {
-    CHAR_ANGKA.find_match(character, get_latin).unwrap()
+    CHAR_ANGKA
+        .find_match(character, get_latin)
+        .unwrap_or_else(|| "".to_string())
 }

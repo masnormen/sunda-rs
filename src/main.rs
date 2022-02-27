@@ -9,6 +9,7 @@ use std::time::Instant;
 
 use crate::{
     capturer::{capture_latin, capture_sunda},
+    charmap::get_angka,
     transliterator::to_sundanese,
 };
 
@@ -51,25 +52,33 @@ fn main() {
         None => String::new(),
     };
 
-    let output: String = if into_sunda {
-        let (groups, matches) = capture_latin(&input);
-        matches
-            .par_iter()
-            .map(|capture| to_sundanese(&groups, capture))
-            .collect::<Vec<String>>()
-            .join("")
+    let output = if into_sunda {
+        get_sundanese(&input)
     } else {
-        let (groups, matches) = capture_sunda(&input);
-        matches
-            .par_iter()
-            //TODO: change this
-            .map(|capture| to_sundanese(&groups, capture))
-            .collect::<Vec<String>>()
-            .join("")
+        get_latin(&input)
     };
 
     println!("{}", output);
 
     // Benchmark end
     println!("Elapsed: {:.2?}", now.elapsed());
+}
+
+fn get_sundanese(input: &str) -> String {
+    let lowercased = input.to_lowercase();
+    let (groups, matches) = capture_latin(&lowercased);
+    matches
+        .par_iter()
+        .map(|capture| to_sundanese(&groups, capture))
+        .collect::<Vec<String>>()
+        .join("")
+}
+
+fn get_latin(input: &str) -> String {
+    let (groups, matches) = capture_latin(input);
+    matches
+        .par_iter()
+        .map(|capture| to_sundanese(&groups, capture))
+        .collect::<Vec<String>>()
+        .join("")
 }

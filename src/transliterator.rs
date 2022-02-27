@@ -65,7 +65,7 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
     }
 
     if !matches["consonant_final"].is_empty() {
-        output.push_str(&get_angka(&matches["consonant_final"], get_latin));
+        output.push_str(&get_ngalagena(&matches["consonant_final"], get_latin));
         output.push_str(&get_rarangken("pamaeh", get_latin));
     }
 

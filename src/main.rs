@@ -9,7 +9,6 @@ use std::time::Instant;
 
 use crate::{
     capturer::{capture_latin, capture_sunda},
-    charmap::get_angka,
     transliterator::to_sundanese,
 };
 
@@ -81,4 +80,33 @@ fn get_latin(input: &str) -> String {
         .map(|capture| to_sundanese(&groups, capture))
         .collect::<Vec<String>>()
         .join("")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn convert_basic_letters() {
+        let result = get_sundanese("ka ga nga ca ja nya ta da na pa ba ma ya ra la wa sa ha fa qa va xa za kha");
+        assert_eq!(result, "ᮊ ᮌ ᮍ ᮎ ᮏ ᮑ ᮒ ᮓ ᮔ ᮕ ᮘ ᮙ ᮚ ᮛ ᮜ ᮝ ᮞ ᮠ ᮖ ᮋ ᮗ ᮟ ᮐ ᮮ");
+    }
+
+    #[test]
+    fn convert_vowel_rarangken() {
+        let result = get_sundanese("pa pi pu pe pé peu po p");
+        assert_eq!(result, "ᮕ ᮕᮤ ᮕᮥ ᮕᮨ ᮕᮦ ᮕᮩ ᮕᮧ ᮕ᮪");
+    }
+
+    #[test]
+    fn convert_consonant_rarangken() {
+        let result = get_sundanese("di klatén, ada santri kyai tebang pohon buah pir");
+        assert_eq!(result, "ᮓᮤ ᮊᮣᮒᮦᮔ᮪, ᮃᮓ ᮞᮔ᮪ᮒᮢᮤ ᮊᮡᮄ ᮒᮨᮘᮀ ᮕᮧᮠᮧᮔ᮪ ᮘᮥᮃᮂ ᮕᮤᮁ");
+    }
+
+    #[test]
+    fn convert_numbers_and_add_pipe() {
+        let result = get_sundanese("tanggal 17 bulan 8 taun 1945");
+        assert_eq!(result, "ᮒᮀᮌᮜ᮪ |᮱᮷| ᮘᮥᮜᮔ᮪ |᮸| ᮒᮅᮔ᮪ |᮱᮹᮴᮵|");
+    }
 }

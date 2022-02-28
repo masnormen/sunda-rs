@@ -3,7 +3,7 @@ use crate::charmap::{
 };
 use fancy_regex::Captures;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Not};
 
 /// Takes `Captures` from Latin and returns the transliterated Sundanese `String`.
 pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
@@ -25,7 +25,7 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
         .collect();
 
     // Transliterate digits
-    if !matches["digits"].is_empty() {
+    if matches["digits"].is_empty().not() {
         let numbers = matches["digits"]
             .chars()
             .map(|digit| get_angka(digit.encode_utf8(&mut [0; 4]), get_latin))
@@ -35,12 +35,12 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
     }
 
     // Transliterate punctuations
-    if !matches["punctuations"].is_empty() {
+    if matches["punctuations"].is_empty().not() {
         return matches["punctuations"].to_owned();
     }
 
     // Transliterate standalone consonant
-    if !matches["consonant_standalone"].is_empty() {
+    if matches["consonant_standalone"].is_empty().not() {
         let consonant = get_ngalagena(matches["consonant_standalone"].as_str(), get_latin);
         let pamaeh = get_rarangken("pamaeh", get_latin);
         return format!("{consonant}{pamaeh}");
@@ -49,9 +49,9 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
     // Transliterate anything else
     let mut output = String::new();
 
-    if !matches["consonant_main"].is_empty() {
+    if matches["consonant_main"].is_empty().not() {
         output.push_str(&get_ngalagena(&matches["consonant_main"], get_latin));
-        if !matches["consonant_sonorant"].is_empty() {
+        if matches["consonant_sonorant"].is_empty().not() {
             output.push_str(&get_rarangken_sonorant(
                 &matches["consonant_sonorant"],
                 get_latin,
@@ -62,11 +62,11 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
         output.push_str(&get_swara(&matches["vowel"], get_latin));
     }
 
-    if !matches["consonant_rarangken"].is_empty() {
+    if matches["consonant_rarangken"].is_empty().not() {
         output.push_str(&get_rarangken(&matches["consonant_rarangken"], get_latin));
     }
 
-    if !matches["consonant_final"].is_empty() {
+    if matches["consonant_final"].is_empty().not() {
         output.push_str(&get_ngalagena(&matches["consonant_final"], get_latin));
         output.push_str(&get_rarangken("pamaeh", get_latin));
     }
@@ -93,30 +93,30 @@ pub fn to_latin(groups: &[String], text: &Captures) -> String {
         .collect();
 
     // Transliterate digits
-    if !matches["angka"].is_empty() {
+    if matches["angka"].is_empty().not() {
         return get_angka(&matches["angka"], get_latin);
     }
 
     // Transliterate punctuations
-    if !matches["not_sunda"].is_empty() {
+    if matches["not_sunda"].is_empty().not() {
         return matches["not_sunda"].to_owned();
     }
 
     // Transliterate anything else
     let mut output = String::new();
 
-    if !matches["ngalagena"].is_empty() {
+    if matches["ngalagena"].is_empty().not() {
         output.push_str(&get_ngalagena(&matches["ngalagena"], get_latin));
         if matches["rarangken_vowel"] == CHAR_RARANGKEN["pamaeh"] {
             return output;
         }
-        if !matches["rarangken_sonorant"].is_empty() {
+        if matches["rarangken_sonorant"].is_empty().not() {
             output.push_str(&get_rarangken_sonorant(
                 &matches["rarangken_sonorant"],
                 get_latin,
             ));
         }
-        if !matches["rarangken_vowel"].is_empty() {
+        if matches["rarangken_vowel"].is_empty().not() {
             output.push_str(&get_rarangken(&matches["rarangken_vowel"], get_latin));
         } else {
             output.push('a');
@@ -125,7 +125,7 @@ pub fn to_latin(groups: &[String], text: &Captures) -> String {
         output.push_str(&get_swara(&matches["swara"], get_latin));
     }
 
-    if !matches["rarangken_final"].is_empty() {
+    if matches["rarangken_final"].is_empty().not() {
         output.push_str(&get_rarangken(&matches["rarangken_final"], get_latin));
     }
 

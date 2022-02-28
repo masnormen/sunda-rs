@@ -1,7 +1,14 @@
 [package]
 name = "sunda"
+description = "A small program for Sundanese <-> Latin transliteration, made with Rust."
 version = "0.1.0"
+authors = ["Nourman Hajar <nourmanhajar@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/masnormen/sunda.rs"
+readme = "README.md"
 edition = "2021"
+categories = ["command-line-utilities"]
+keywords = ["aksara", "aksara sunda", "sunda", "sundanese", "transliterate"]
 
 [dependencies]
 clap = "3.1.2"

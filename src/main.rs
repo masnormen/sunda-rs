@@ -4,8 +4,6 @@ mod transliterator;
 
 use clap::{Arg, Command};
 use rayon::prelude::*;
-use std::env;
-use std::time::Instant;
 
 use crate::{
     capturer::{capture_latin, capture_sunda},
@@ -14,9 +12,6 @@ use crate::{
 
 #[allow(unused, dead_code)]
 fn main() {
-    // Benchmark start
-    let now = Instant::now();
-
     let args = Command::new("sunda")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Nourman Hajar <nourmanhajar@gmail.com>")
@@ -59,9 +54,6 @@ fn main() {
     };
 
     println!("{}", output);
-
-    // Benchmark end
-    println!("Elapsed: {:.2?}", now.elapsed());
 }
 
 fn get_sundanese(input: &str) -> String {

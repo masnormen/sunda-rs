@@ -11,9 +11,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: ["windows-latest", "macos-latest", "ubuntu-latest"]
-        os: ["ubuntu-latest"]
-    
+        os: ["windows-latest", "macos-latest", "ubuntu-latest"]
+
     steps:
     - name: 📥 Checkout
       uses: actions/checkout@v2
@@ -24,8 +23,7 @@ jobs:
         toolchain: stable
         override: true
 
-    - name: 🚚 Build with Cargo
+    - name: 🧪 Test Package
       uses: actions-rs/cargo@v1
       with:
-        command: build
-        args: --verbose --release --all-features
+        command: test

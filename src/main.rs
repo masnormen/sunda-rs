@@ -83,12 +83,14 @@ fn get_latin(input: &str) -> String {
 }
 
 #[cfg(test)]
-mod tests {
+mod latin_to_sunda_tests {
     use super::*;
 
     #[test]
     fn convert_basic_letters() {
-        let result = get_sundanese("ka ga nga ca ja nya ta da na pa ba ma ya ra la wa sa ha fa qa va xa za kha");
+        let result = get_sundanese(
+            "ka ga nga ca ja nya ta da na pa ba ma ya ra la wa sa ha fa qa va xa za kha",
+        );
         assert_eq!(result, "ᮊ ᮌ ᮍ ᮎ ᮏ ᮑ ᮒ ᮓ ᮔ ᮕ ᮘ ᮙ ᮚ ᮛ ᮜ ᮝ ᮞ ᮠ ᮖ ᮋ ᮗ ᮟ ᮐ ᮮ");
     }
 
@@ -108,5 +110,37 @@ mod tests {
     fn convert_numbers_and_add_pipe() {
         let result = get_sundanese("tanggal 17 bulan 8 taun 1945");
         assert_eq!(result, "ᮒᮀᮌᮜ᮪ |᮱᮷| ᮘᮥᮜᮔ᮪ |᮸| ᮒᮅᮔ᮪ |᮱᮹᮴᮵|");
+    }
+}
+
+#[cfg(test)]
+mod sunda_to_latin_tests {
+    use super::*;
+
+    #[test]
+    fn convert_basic_letters() {
+        let result = get_latin("ᮊ ᮌ ᮍ ᮎ ᮏ ᮑ ᮒ ᮓ ᮔ ᮕ ᮘ ᮙ ᮚ ᮛ ᮜ ᮝ ᮞ ᮠ ᮖ ᮋ ᮗ ᮟ ᮐ ᮮ");
+        assert_eq!(
+            result,
+            "ka ga nga ca ja nya ta da na pa ba ma ya ra la wa sa ha fa qa va xa za kha"
+        );
+    }
+
+    #[test]
+    fn convert_vowel_rarangken() {
+        let result = get_latin("ᮕ ᮕᮤ ᮕᮥ ᮕᮨ ᮕᮦ ᮕᮩ ᮕᮧ ᮕ᮪");
+        assert_eq!(result, "pa pi pu pe pé peu po p");
+    }
+
+    #[test]
+    fn convert_consonant_rarangken() {
+        let result = get_latin("ᮓᮤ ᮊᮣᮒᮦᮔ᮪, ᮃᮓ ᮞᮔ᮪ᮒᮢᮤ ᮊᮡᮄ ᮒᮨᮘᮀ ᮕᮧᮠᮧᮔ᮪ ᮘᮥᮃᮂ ᮕᮤᮁ");
+        assert_eq!(result, "di klatén, ada santri kyai tebang pohon buah pir");
+    }
+
+    #[test]
+    fn convert_numbers_and_remove_pipe() {
+        let result = get_latin("ᮒᮀᮌᮜ᮪ |᮱᮷| ᮘᮥᮜᮔ᮪ |᮸| ᮒᮅᮔ᮪ |᮱᮹᮴᮵|");
+        assert_eq!(result, "tanggal 17 bulan 8 taun 1945");
     }
 }

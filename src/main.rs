@@ -9,9 +9,10 @@ use std::time::Instant;
 
 use crate::{
     capturer::{capture_latin, capture_sunda},
-    transliterator::to_sundanese,
+    transliterator::{to_latin, to_sundanese},
 };
 
+#[allow(unused, dead_code)]
 fn main() {
     // Benchmark start
     let now = Instant::now();
@@ -74,10 +75,10 @@ fn get_sundanese(input: &str) -> String {
 }
 
 fn get_latin(input: &str) -> String {
-    let (groups, matches) = capture_latin(input);
+    let (groups, matches) = capture_sunda(input);
     matches
         .par_iter()
-        .map(|capture| to_sundanese(&groups, capture))
+        .map(|capture| to_latin(&groups, capture))
         .collect::<Vec<String>>()
         .join("")
 }

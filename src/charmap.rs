@@ -23,7 +23,7 @@ impl FindMatch for CharMap {
 }
 
 lazy_static! {
-    static ref CHAR_SWARA: CharMap = HashMap::from([
+    pub static ref CHAR_SWARA: CharMap = HashMap::from([
         ("a", "ᮃ"),
         ("i", "ᮄ"),
         ("u", "ᮅ"),
@@ -32,7 +32,7 @@ lazy_static! {
         ("eu", "ᮉ"),
         ("o", "ᮇ"),
     ]);
-    static ref CHAR_NGALAGENA: CharMap = HashMap::from([
+    pub static ref CHAR_NGALAGENA: CharMap = HashMap::from([
         ("k", "ᮊ"),
         ("g", "ᮌ"),
         ("ng", "ᮍ"),
@@ -59,7 +59,7 @@ lazy_static! {
         ("kh", "ᮮ"),
         ("sy", "ᮯ"),
     ]);
-    static ref CHAR_RARANGKEN: CharMap = HashMap::from([
+    pub static ref CHAR_RARANGKEN: CharMap = HashMap::from([
         ("a", ""),
         ("i", "ᮤ"),
         ("u", "ᮥ"),
@@ -72,9 +72,9 @@ lazy_static! {
         ("h", "ᮂ"),
         ("pamaeh", "᮪"),
     ]);
-    static ref CHAR_RARANGKEN_SONORANT: CharMap =
+    pub static ref CHAR_RARANGKEN_SONORANT: CharMap =
         HashMap::from([("l", "ᮣ"), ("r", "ᮢ"), ("y", "ᮡ"),]);
-    static ref CHAR_ANGKA: CharMap = HashMap::from([
+    pub static ref CHAR_ANGKA: CharMap = HashMap::from([
         ("0", "᮰"),
         ("1", "᮱"),
         ("2", "᮲"),

@@ -1,4 +1,6 @@
-use crate::charmap::{get_angka, get_ngalagena, get_rarangken, get_rarangken_sonorant, get_swara};
+use crate::charmap::{
+    get_angka, get_ngalagena, get_rarangken, get_rarangken_sonorant, get_swara, CHAR_RARANGKEN,
+};
 use fancy_regex::Captures;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::collections::HashMap;
@@ -67,6 +69,64 @@ pub fn to_sundanese(groups: &[String], text: &Captures) -> String {
     if !matches["consonant_final"].is_empty() {
         output.push_str(&get_ngalagena(&matches["consonant_final"], get_latin));
         output.push_str(&get_rarangken("pamaeh", get_latin));
+    }
+
+    output
+}
+
+pub fn to_latin(groups: &[String], text: &Captures) -> String {
+    let get_latin = true;
+
+    let matches: HashMap<String, String> = text
+        .iter()
+        .enumerate()
+        .par_bridge()
+        .map(|(index, match_)| {
+            (
+                groups[index].to_string(),
+                match match_ {
+                    Some(m) => m.as_str().to_string(),
+                    None => String::new(),
+                },
+            )
+        })
+        .collect();
+
+    // Transliterate digits
+    if !matches["angka"].is_empty() {
+        return get_angka(&matches["angka"], get_latin);
+    }
+
+    // Transliterate punctuations
+    if !matches["not_sunda"].is_empty() {
+        return matches["not_sunda"].to_owned();
+    }
+
+    // Transliterate anything else
+    let mut output = String::new();
+
+    if !matches["ngalagena"].is_empty() {
+        output.push_str(&get_ngalagena(&matches["ngalagena"], get_latin));
+        if matches["rarangken_vowel"] == CHAR_RARANGKEN["pamaeh"] {
+            return output;
+        }
+        if !matches["rarangken_sonorant"].is_empty() {
+            output.push_str(&get_rarangken_sonorant(
+                &matches["rarangken_sonorant"],
+                get_latin,
+            ));
+        }
+        if !matches["rarangken_vowel"].is_empty() {
+            output.push_str(&get_rarangken(&matches["rarangken_vowel"], get_latin));
+        } else {
+            output.push('a');
+        }
+    } else {
+        output.push_str(&get_swara(&matches["swara"], get_latin));
+    }
+
+    if !matches["rarangken_final"].is_empty() {
+        output.push_str(&get_rarangken(&matches["rarangken_final"], get_latin));
     }
 
     output

@@ -7,7 +7,7 @@ lazy_static! {
         .unwrap();
 
     static ref CAPTURE_SUNDA: Regex = Regex
-        ::new(r"(?:[|])?(?<angka>[\x{1BB0}])(?:[|])?|(?<not_sunda>[^\x{1B80}-\x{1BA8}\x{1BAE}-\x{1BB9}]+)|(?:(?<ngalagena>[\x{1B8A}-\x{1BA0}\x{1BAE}\x{1BAF}])(?<rarangken_sonorant>[\x{1B1}-\x{1BA3}])?(?<rarangken_vowel>[\x{1BA4}-\x{1BAA}])?|(?<swara>[\x{1B83}-\x{1B89}]))(?<rarangken_final>[\x{1B80}-\x{1B82}])?")
+        ::new(r"(?:[|])?(?<angka>[\x{1BB0}-\x{1BB9}])(?:[|])?|(?<not_sunda>[^\x{1B80}-\x{1BA8}\x{1BAE}-\x{1BB9}])|(?:(?<ngalagena>[\x{1B8A}-\x{1BA0}\x{1BAE}\x{1BAF}])(?<rarangken_sonorant>[\x{1BA1}-\x{1BA3}])?(?<rarangken_vowel>[\x{1BA4}-\x{1BAA}])?|(?<swara>[\x{1B83}-\x{1B89}]))(?<rarangken_final>[\x{1B80}-\x{1B82}])?")
         .unwrap();
 }
 
